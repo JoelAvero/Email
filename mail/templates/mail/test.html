@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <script>
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            var prueba = document.querySelector('#prueba');
+
+            
+            prueba.onsubmit = function() {
+
+                //e.preventDefault();
+                console.log('adentro del evento submit');
+
+                var primero = document.querySelector('#primero').value
+                var segundo = document.querySelector('#segundo').value
+                
+                if (primero != segundo){
+                    console.log('no son iguales');
+                    return false
+                };
+
+                fetch('test2', {
+                method: 'POST',
+                body: JSON.stringify({
+                    primero: primero,
+                    segundo: segundo,
+                })
+                })
+                alert('formulario enviado')
+            };
+            
+        });
+
+    </script>
+</head>
+<body>
+    <h1>PAGINA DE PRUEBA</h1>
+    <form id="prueba">
+
+        <input id="primero" type="text" name="primero"><br>
+        <input id="segundo" type="text" name="segundo"><br><br>
+        <input type="submit" value="Enviar">
+
+    </form>
+
+</body>
+</html>

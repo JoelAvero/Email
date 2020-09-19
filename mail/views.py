@@ -177,3 +177,18 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "mail/register.html")
+
+
+
+
+def test(request):
+    print('hi!')
+    return render(request, 'mail/test.html')
+
+@csrf_exempt
+def test2(request):
+    print('inside')
+    datos = json.loads(request.body)
+    primero = datos.get('primero', '') #Ver como funciona esto datos.get, lo de las dos comillas y eso
+    print(f'DATOS: {primero}')
+    return HttpResponseRedirect(reverse("index"))
