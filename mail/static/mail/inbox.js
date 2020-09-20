@@ -55,5 +55,7 @@ function send_mail() {
   });
   
   alert('Success!');
+  load_mailbox('sent');
+  return false;
 
 }
