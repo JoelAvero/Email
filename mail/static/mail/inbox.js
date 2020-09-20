@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelector('#compose-form').onsubmit = send_mail;
 
   // By default, load the inbox
-  load_mailbox('inbox');
+  inbox();
 });
 
 function compose_email() {
@@ -31,7 +31,7 @@ function load_mailbox(mailbox) {
   document.querySelector('#compose-view').style.display = 'none';
 
   // Show the mailbox name
-  document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
+  document.querySelector('#title').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
 }
 
 function send_mail() {
@@ -58,4 +58,69 @@ function send_mail() {
   load_mailbox('sent');
   return false;
 
+}
+
+
+function inbox() {
+
+  const content = document.createElement('div');
+  content.setAttribute('class', 'accordion');
+  content.id = 'inboxdiv';
+  document.querySelector('#content').append(content);
+
+  const newdiv = document.querySelector('#inboxdiv')
+  
+  fetch('emails/inbox')
+  .then(resp => resp.json())
+  .then(mails => {
+    console.log(mails);
+    mails.forEach(mail => {
+      
+      newdiv.innerHTML += `
+      
+      <div class="card">
+        <div class="card-header" id="heading${mail.id}">
+          <h2 class="mb-0">
+            <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse${mail.id}" >
+              <div class='container'>
+                <div class='row'>
+                  <div class='col-4'><strong>From:</strong> ${mail.sender}</div>
+                  <div class='col-5'><strong>Subject:</strong> ${mail.subject}</div>
+                  <div class='col-3'><span style='font-size: 14px;'><strong>Date:</strong> ${mail.timestamp}</span></div>
+                </div>
+              </div>    
+            </button>
+          </h2>
+        </div>
+
+        <div id="collapse${mail.id}" class="collapse" data-parent="#inboxdiv">
+          <div class="card-body">
+            <div class='container'>
+              <div class='row'>
+                <div class='col-12'><strong>From:</strong> ${mail.sender}</div>
+                <div class='col-12'><strong>To:</strong> ${mail.recipients}</div>
+                <div class='col-12'><strong>Subject:</strong> ${mail.subject}</div>
+                <div class='col-12'><strong>Date:</strong> ${mail.timestamp}</div>  
+              </div>
+            </div>
+            <hr>
+            <div class='container'>
+              <div class='row'>
+                <div class='col-12' style='font-size: 20px;'><strong>Message:</strong></div>
+                <div class='col-12'>${mail.body}</div>
+                <div class='col-10'></div>
+                <div class='col-2'><button class="btn btn-primary" id="reply">Reply</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      `
+    });
+
+  })
+  
+
+  load_mailbox('inbox');
 }
