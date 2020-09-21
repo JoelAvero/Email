@@ -48,6 +48,12 @@ function send_mail() {
   const subject = document.querySelector('#compose-subject').value;
   const body = document.querySelector('#compose-body').value;
 
+  if(recipients == '' || subject == '' || body == '' ){
+    
+    alert('Please, complete all the fields.')
+    return false
+  }
+
   fetch('/emails', {
     method: 'POST',
     body: JSON.stringify({
@@ -126,10 +132,8 @@ function inbox() {
               </div>
             </div>
           </div>
-        </div>
-        
+        </div>    
         `
-    
     });
 
   })
@@ -253,7 +257,7 @@ function archive() {
                 <div class='col-12' style='font-size: 20px;'><strong>Message:</strong></div>
                 <div class='col-12'>${mail.body}</div>
                 <div class='col-10'></div>
-                <div class='col-3'><button class="btn btn-primary" id="reply">Reply</button>
+                <div class='col-3'><button class="btn btn-primary" id="reply" onclick='reply(${mail.id})'>Reply</button>
                 <button class="btn btn-success" onclick='removeArchive(${mail.id})' id="archive">Unarchive</button></div>
               </div>
             </div>
@@ -296,7 +300,6 @@ function removeArchive(id) {
   alert('unarchived')
   return archive();
 }
-
 
 
 function reply(id) {
