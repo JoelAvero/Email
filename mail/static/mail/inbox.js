@@ -42,7 +42,6 @@ function load_mailbox(mailbox) {
 
 
 
-
 function send_mail() {
 
   const recipients = document.querySelector('#compose-recipients').value;
