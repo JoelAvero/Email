@@ -13,7 +13,10 @@ document.addEventListener('DOMContentLoaded', function() {
   inbox();
 });
 
+
+// global variable, this controls whether the form should be emptied or not
 var replyy = false;
+
 
 function compose_email() {
 
@@ -21,15 +24,22 @@ function compose_email() {
   document.querySelector('#emails-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'block';
 
+  
+  // is this a reply or a new mail?
   if (window.replyy == false){
-  // Clear out composition fields
-  document.querySelector('#compose-recipients').value = '';
-  document.querySelector('#compose-subject').value = '';
-  document.querySelector('#compose-body').value = '';
+  // is a new mail, then clear all the fields
+    document.querySelector('#compose-recipients').value = '';
+    document.querySelector('#compose-subject').value = '';
+    document.querySelector('#compose-body').value = '';
+
   }
+
+  // set global variable
   window.replyy = false
 }
 
+
+// the same function with little changes
 function load_mailbox(mailbox) {
   
   // Show the mailbox and hide other views
@@ -41,19 +51,25 @@ function load_mailbox(mailbox) {
 }
 
 
-
+// send new mail to back-end
 function send_mail() {
 
   const recipients = document.querySelector('#compose-recipients').value;
   const subject = document.querySelector('#compose-subject').value;
   const body = document.querySelector('#compose-body').value;
 
+  // check if all the fields are completeds
   if(recipients == '' || subject == '' || body == '' ){
-    
-    alert('Please, complete all the fields.')
-    return false
+    alert('Please, complete all the fields.');
+    return false;
+  }
+  // a little and not optimal comprobation for the recipient field
+  if(!recipients.includes('@')){
+    alert("Please, check the recipient's email");
+    return false;
   }
 
+  // send the information "little filtered" to the back-end
   fetch('/emails', {
     method: 'POST',
     body: JSON.stringify({
@@ -70,22 +86,28 @@ function send_mail() {
   
   alert('Success!');
   sent();
-  
   return false;
 }
 
 
-
+// load inbox
 function inbox() {
 
-  const content = document.createElement('div');
-  content.setAttribute('class', 'accordion');
-  content.id = 'inboxdiv';
-  document.querySelector('#content').append(content);
-  
+  // control for create new div, i want only one
+  if(document.querySelector('#inboxdiv') == null){
+    console.log('estoy entrando al if');
+    // create a new div that contains the "accordion"
+    const content = document.createElement('div');
+    content.setAttribute('class', 'accordion');
+    content.id = 'inboxdiv';
+    document.querySelector('#content').append(content);;
+  }
+
   const newdiv = document.querySelector('#inboxdiv')
+  // set the initial value
   newdiv.innerHTML = ''
 
+  // get inbox and create a new card for each mail
   fetch('emails/inbox')
   .then(resp => resp.json())
   .then(mails => {
@@ -142,16 +164,22 @@ function inbox() {
 }
 
 
+// load sentbox
 function sent(){
 
+  /*
+  // create a new div that contains the "accordion"
   const content = document.createElement('div');
   content.setAttribute('class', 'accordion');
   content.id = 'inboxdiv';
-  
   document.querySelector('#content').append(content);
+  */
 
   const newdiv = document.querySelector('#inboxdiv')
+  // set the initial value
   newdiv.innerHTML = ''
+
+  // for each mail was sent, create a new card
   fetch('emails/sent')
   .then(resp => resp.json())
   .then(mails => {
@@ -202,20 +230,26 @@ function sent(){
 
   })
 
-  load_mailbox('sent')
+  return load_mailbox('sent')
 }
 
 
+// load archived mails
 function archive() {
 
+  /*
+  // create a new div that contains the "accordion"
   const content = document.createElement('div');
   content.setAttribute('class', 'accordion');
   content.id = 'inboxdiv';
   document.querySelector('#content').append(content);
-  
+  */
+
   const newdiv = document.querySelector('#inboxdiv')
+  // set the initial value
   newdiv.innerHTML = ''
 
+  // get archived mails and create a new card for each mail
   fetch('emails/archive')
   .then(resp => resp.json())
   .then(mails => {
@@ -272,39 +306,46 @@ function archive() {
 
   })
   
-  load_mailbox('archive');
+  return load_mailbox('archive');
 }
 
 
+// add mail to archived
 function addArchive(id) {
 
+  // get an mail by id and change the boolean 'archived' to true
   fetch(`/emails/${id}`, {
     method: 'PUT',
     body: JSON.stringify({
         archived: true
     })
   });
-  alert('archived')
+
+  alert('archived');
   return inbox();
 }
 
 
+// remove mail from archived
 function removeArchive(id) {
 
+  // get mail by id and change the boolean 'archived' to false
   fetch(`/emails/${id}`, {
     method: 'PUT',
     body: JSON.stringify({
         archived: false
     })
   });
-  alert('unarchived')
+
+  alert('unarchived');
   return archive();
 }
 
 
+// reply constructor
 function reply(id) {
   
-
+  // get mail by id, take data, and construct the reply template
   fetch(`emails/${id}`)
   .then(resp => resp.json())
   .then(mail => {
@@ -313,13 +354,17 @@ function reply(id) {
     document.querySelector('#compose-body').value = `${mail.timestamp}, ${mail.sender} WROTE: ${mail.body}\nREPLY: `;
   });
   
+  // set the global variable, this controls whether the form should be emptied or not
   window.replyy = true;
   compose_email();
 
 }
 
 
+// set if the mail was read or not
 function read(id) {
+
+  // get mail by id and change 'read' att by true, this was called when the user open an email in your inbox
   fetch(`/emails/${id}`, {
     method: 'PUT',
     body: JSON.stringify({
